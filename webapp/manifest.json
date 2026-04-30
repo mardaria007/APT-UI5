@@ -1,0 +1,117 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "apt",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.18.6",
+      "toolsId": "f82295d4-1075-4bd6-ac07-75241bab3817"
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.145.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "apt.i18n.i18n"
+        }
+      },
+      "products": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "http://localhost:8080/products"
+      },
+      "versions": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "http://localhost:8080/versions"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.f.routing.Router",
+        "controlId": "idFlexibleColumnLayout",
+        "type": "View",
+        "viewType": "XML",
+        "path": "apt.view",
+        "async": true
+      },
+      "routes": [
+        {
+          "name": "RouteMain",
+          "pattern": ":layout:",
+          "target": [
+            "TargetMain"
+          ]
+        }, 
+        {
+          "name": "RouteDetail",
+          "pattern": "detail/{product}/{rVersion}/{layout}",
+          "target": [
+            "TargetMain",
+            "TargetDetail"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetMain": {
+          "id": "Main",
+          "name": "Main",
+          "controlAggregation": "beginColumnPages"
+        },
+        "TargetDetail": {
+          "id": "Detail",
+          "name": "Detail",
+          "controlAggregation": "midColumnPages"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "apt.view.Fcl",
+      "type": "XML",
+      "id": "idFclView",
+      "async": true
+    }
+  }
+}

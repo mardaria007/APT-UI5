@@ -1,0 +1,45 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="AddArtifactDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="idAddArtifactDialog" title="{i18n>AddArtifact}" beforeOpen=".onAddArtifactDialogBeforeOpen('AddArtifactDialog')">
+        <content>
+            <form:SimpleForm id="idAddArtifactDialogForm">
+                <Label id="idAddArtifactDialogDeploymentCategoryInputLabel" text="{i18n>ArtifactDeploymentCategory}"></Label>
+                <ComboBox id="idAddArtifactDialogDeploymentCategoryInputComboBox" change="onDeploymentCategoryChange" required="true">
+                    <core:ListItem id="idAddArtifactDialogDeploymentCategoryInputComboBoxFrontend" key="FRONTEND" text="{i18n>DeploymentCategoryFrontend}"></core:ListItem>
+                    <core:ListItem id="idAddArtifactDialogDeploymentCategoryInputComboBoxBackend" key="BACKEND" text="{i18n>DeploymentCategoryBackend}"></core:ListItem>
+                    <core:ListItem id="idAddArtifactDialogDeploymentCategoryInputComboBoxFrontendAndBackend" key="FRONTEND_AND_BACKEND" text="{i18n>DeploymentCategoryFrontendAndBackend}"></core:ListItem>
+                </ComboBox>
+                <Label id="idAddArtifactDialogAssignmentTypeInputLabel" text="{i18n>ArtifactAssignmentType}"></Label>
+                <ComboBox id="idAddArtifactDialogAssignmentTypeInputComboBox" change="onAssignmentTypeChange" required="true">
+                    <core:ListItem id="idAddArtifactDialogAssignmentTypeInputComboBoxDelta" key="DELTA" text="{i18n>AssingnmentTypeDelta}"></core:ListItem>
+                    <core:ListItem id="idAddArtifactDialogAssignmentTypeInputComboBoxDelivery" key="DELIVERY" text="{i18n>AssingnmentTypeDelivery}"></core:ListItem>
+                </ComboBox>
+                <Label id="idAddArtifactDialogTransportTypeInputLabel" text="{i18n>ArtifactTransportType}"></Label>
+                <ComboBox id="idAddArtifactDialogTransportTypeInputComboBox" change="onTransportTypeChange" required="true">
+                    <core:ListItem id="idAddArtifactDialogTransportTypeInputComboBoxWorkbench" key="WORKBENCH" text="{i18n>TransportTypeWorkbench}"></core:ListItem>
+                    <core:ListItem id="idAddArtifactDialogTransportTypeInputComboBoxConfiguration" key="CONFIGURATION" text="{i18n>TransportTypeConfig}"></core:ListItem>
+                    <core:ListItem id="idAddArtifactDialogTransportTypeInputComboBoxTransportOfCopies" key="TRANSPORT_OF_COPIES" text="{i18n>TransportTypeTOC}"></core:ListItem>
+                </ComboBox>
+                <Label id="idAddArtifactDialogTransportIDInputLabel" text="{i18n>ArtifactExternalId}"></Label>
+                <Input id="idAddArtifactDialogTransportIDInput" required="true"
+                    value="{ 
+                        path: 'artifactModel>/transportId',
+                        type: 'sap.ui.model.type.Integer'
+                    }"
+                    valueHelpRequest="onAssignmentTypeValueRequest"></Input>
+                <Label id="idAddArtifactDialogDescriptionInputLabel" text="{i18n>ArtifactDescription}"></Label>
+                <Input id="idAddArtifactDialogDescriptionInput"
+                    value="{ 
+                        path: 'artifactModel>/description',
+                        type: 'sap.ui.model.type.String'
+                    }"
+                    valueHelpRequest="onAssignmentTypeValueRequest"></Input>
+            </form:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="idAddArtifactDialogAcceptButton" text="{i18n>ConfirmButton}" press=".onAddArtifactConfirm"></Button>
+        </beginButton>
+        <endButton> 
+            <Button id="idAddArtifactDialogCancelButton" text="{i18n>CancelButton}" press="closeDialog('AddArtifactDialog')"></Button>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

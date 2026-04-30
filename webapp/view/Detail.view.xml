@@ -1,0 +1,111 @@
+<mvc:XMLView xmlns:core="sap.ui.core" xmlns:table="sap.ui.table" xmlns:form="sap.ui.layout.form" xmlns:m="sap.m" xmlns:uxap="sap.uxap" xmlns:mvc="sap.ui.core.mvc" id="idDetailView" displayBlock="true" controllerName="apt.controller.Detail">
+    <uxap:ObjectPageLayout id="idDetailObjectPageLayout" >
+        <uxap:headerTitle>
+            <uxap:ObjectPageDynamicHeaderTitle id="idDetailObjectPageDynamicHeaderTitleContainer">
+                <uxap:heading>
+                    <m:Title id="idDetailObjectPageDynamicHeaderTitle" text="{products>productName}"></m:Title>
+                </uxap:heading>
+                <uxap:actions>
+                    <m:Button id="idDetailObjectPageActionsDeleteProduct" text="{i18n>DeleteProductButton}" press=".showDialog('DeleteProductDialog')"></m:Button>
+                    <m:Button id="idDetailObjectPageActionsClosePage" icon="sap-icon://decline" press=".onNavBack"></m:Button>
+                </uxap:actions>
+            </uxap:ObjectPageDynamicHeaderTitle>
+        </uxap:headerTitle>
+        <uxap:headerContent>
+            <form:SimpleForm id="idDetailHeaderContentForm" layout="ResponsiveGridLayout">
+                <core:Title id="idDetailHeaderContentProductInfoTitle" text="{i18n>ProductInformation}"></core:Title>
+                <m:Label id="idDetailHeaderProductExternalIdLabel" text="{i18n>ProductExternalId}"></m:Label>
+                <m:Text id="idDetailHeaderProductExternalIdText" text="{products>productExternalId}"></m:Text>
+                <m:Label id="idDetailHeaderProductNameLabel" text="{i18n>ProductName}"></m:Label>
+                <m:Text id="idDetailHeaderProductNameText" text="{products>productName}"></m:Text>
+                <m:Label id="idDetailHeaderProductLinkLabel" text="{i18n>ProductLink}"></m:Label>
+                <m:Text id="idDetailHeaderProductLinkText" text="{products>productLink}"></m:Text>
+            </form:SimpleForm>
+        </uxap:headerContent>
+        <uxap:sections>
+            <uxap:ObjectPageSection id="idDetailObjectPageSection">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection id="idDetailObjectPageSubsectionVersions" title="{i18n>VersionsTitle}">
+                        <uxap:actions>
+                            <m:Button id="idDetailObjectPageSubsectionActionAddVersion" text="{i18n>AddVersionButton}" press="showDialog('AddVersionDialog')" enabled="true"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionEditVersion" text="{i18n>EditVersionButton}" press="showDialog('EditVersionDialog')" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionPublishVersion" text="{i18n>PublishVersionButton}" press="onPublishVersionPress" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionReturnVersion" text="{i18n>DeprecateVersionButton}" press="onReturnVersionPress" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionDeleteVersion" text="{i18n>DeleteVersionButton}" press="onDeleteVersionPress" enabled="true"></m:Button>
+                        </uxap:actions>
+                        <m:Table id="idDetailObjectPageSubsectionVersionsTable"
+                            updateFinished="onUpdateFinished"
+                            items="{path:'products>versions', sorter:{path: 'version', descending:true}}">
+                            <m:columns>
+                                <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnId">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnIdText" text="{i18n>VersionId}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnVersion">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnVersionText" text="{i18n>VersionExternalId}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnDescription">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnDescriptionText" text="{i18n>VersionDescription}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnStatus">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnStatusText" text="{i18n>VersionStatus}"></m:Text>
+                                </m:Column>
+                            </m:columns>
+                            <m:items>
+                                <m:ColumnListItem id="idDetailObjectPageSubsectionVersionsTableColumnListItem" type="Active" press=".onVersionPress">
+                                    <m:cells>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionsTableIdText" text="{products>id}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionsTableVersionText" text="{products>version}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionsTableDescriptionText" text="{products>description}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionsTableStatusText" text="{path:'products>status', formatter:'.formatter.checkStatus'}"></m:Text>
+                                    </m:cells>
+                                </m:ColumnListItem>
+                            </m:items>
+                        </m:Table>
+                    </uxap:ObjectPageSubSection>
+
+                    <uxap:ObjectPageSubSection id="idDetailObjectPageSubsectionVersionArtifacts" title="{i18n>ArtifactsTitle}">
+                        <uxap:actions>
+                            <m:Button id="idDetailObjectPageSubsectionActionAddArtifact" text="{i18n>AddArtifactButton}" press="showDialog('AddArtifactDialog')"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionDeleteArtifact" text="Artefakt löschen" press="onDeleteArtifactPress"></m:Button>
+                        </uxap:actions>
+                        <m:Table id="idDetailObjectPageSubsectionVersionArtifactsTable"
+                            items="{products>artifacts}">
+                            <m:columns>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnId">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnIdText" text="{i18n>ArtifactId}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnDeploymentCategory">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnDeploymentCategoryText" text="{i18n>ArtifactDeploymentCategory}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnAssignmentType">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnAssignmentTypeText" text="{i18n>ArtifactAssignmentType}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnTransportType">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnTransportTypeText" text="{i18n>ArtifactTransportType}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnExternalId">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnExternalIdText" text="{i18n>ArtifactExternalId}"></m:Text>
+                                </m:Column>
+                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnDescription">
+                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnVersionText" text="{i18n>ArtifactDescription}"></m:Text>
+                                </m:Column>
+                            </m:columns>
+                            <m:items>
+                                <m:ColumnListItem id="idDetailObjectPageSubsectionVersionArtifactsTableColumnListItem" type="Active" press="onArtifactPress">
+                                    <m:cells>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableIdText" text="{products>id}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableDeploymentCategoryText" text="{path:'products>deploymentCategory', formatter:'.formatter.checkDeploymentCategory'}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableAssignmentTypeText" text="{path:'products>assignmentType', formatter:'.formatter.checkAssignmentType'}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableTransportTypeText" text="{path:'products>transportType', formatter:'.formatter.checkTransportType'}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableExternalIdText" text="{products>externalId}"></m:Text>
+                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableDescriptionText" text="{products>description}"></m:Text>
+                                    </m:cells>
+                                </m:ColumnListItem>
+                            </m:items>
+                        </m:Table>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+        </uxap:sections>
+    </uxap:ObjectPageLayout>
+</mvc:XMLView>

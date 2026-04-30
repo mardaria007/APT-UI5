@@ -1,0 +1,26 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="EditVersionDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="idEditVersionDialog" title="{i18n>EditVersion}" beforeOpen=".onEditVersionDialogBeforeOpen('EditVersionDialog')">
+        <content>
+            <form:SimpleForm id="idEditVersionDialogForm">
+                <Label id="idEditVersionDialogVersionInputLabel" text="{i18n>VersionExternalId}"></Label>
+                <Input id="idEditVersionDialogVersionInput" required="true"
+                    value="{ 
+                        path: 'versionModel>/version',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+                <Label id="idEditVersionDialogDescriptionInputLabel" text="{i18n>VersionDescription}"></Label>
+                <Input id="idEditVersionDialogDescriptionInput"
+                    value="{ 
+                        path: 'versionModel>/description',
+                        type: 'sap.ui.model.type.String' 
+                    }"></Input>
+            </form:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="idEditVersionDialogAcceptButton" text="{i18n>ConfirmButton}" press=".onEditVersionConfirm"></Button>
+        </beginButton>
+        <endButton> 
+            <Button id="idEditVersionDialogCancelButton" text="{i18n>CancelButton}" press="closeDialog('EditVersionDialog')"></Button>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

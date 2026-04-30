@@ -1,0 +1,15 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="DeleteProductDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="idDeleteProductDialog" title="{i18n>DeleteProduct}">
+        <content>
+            <form:SimpleForm id="idDeleteProductDialogForm">
+                <Text id="idDeleteProductDialogText" text="{i18n>BeforeDeleteProductText}"></Text>
+            </form:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="idDeleteProductDialogAcceptButton" text="{i18n>ConfirmButton}" press=".onDeleteProductConfirm"></Button>
+        </beginButton>
+        <endButton> 
+            <Button id="idDeleteProductDialogCancelButton" text="{i18n>CancelButton}" press="closeDialog('DeleteProductDialog')"></Button>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

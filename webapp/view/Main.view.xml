@@ -1,0 +1,46 @@
+<mvc:View xmlns:f="sap.f" controllerName="apt.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m">
+    <f:DynamicPage id="idProductsPage">
+        <f:title>
+            <f:DynamicPageTitle id="idProductsPageTitleContainer">
+                <f:heading>
+                    <Title id="idProductsPageTitle" text="{i18n>title}"></Title>
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        <f:content>
+            <Table 
+                id="idProductsTable"
+                inset="false"
+                items="{products>/}">
+                <headerToolbar>
+                    <OverflowToolbar id="idProductsTableToolbar">
+                        <Button id="idProductsTableCreateButton" text="{i18n>AddProductButton}" press=".showDialog('AddProductDialog')"></Button>
+                    </OverflowToolbar>
+                </headerToolbar>
+                <columns>
+                    <Column id="idProductId">
+                        <Text id="idProductIdText" text="{i18n>ProductId}"></Text>
+                    </Column>
+                    <Column id="idProductExternalId">
+                        <Text id="idProductExternalIdText" text="{i18n>ProductExternalId}"></Text>
+                    </Column>
+                    <Column id="idProductName">
+                        <Text id="idProductNameText" text="{i18n>ProductName}"></Text>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem id="idProductsTableColumnListItem" type="Navigation" press="onProductPress">
+                        <cells>
+                            <ObjectIdentifier id="idProductsTableObjectId" title="{products>id}"></ObjectIdentifier>
+                            <Text id="idProductsTableExternalId" text="{products>productExternalId}"></Text>
+                            <Text id="idProductsTableProductName" text="{products>productName}"></Text>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+    </f:DynamicPage>
+</mvc:View>

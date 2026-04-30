@@ -1,0 +1,32 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="AddProductDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="idAddProductDialog" title="{i18n>AddProduct}" beforeOpen=".onAddProductDialogBeforeOpen('AddVersionDialog')">
+        <content>
+            <form:SimpleForm id="idAddProductDialogForm">
+                <Label id="idAddProductDialogExternalIdInputLabel" text="{i18n>ProductExternalId}"></Label>
+                <Input id="idAddProductDialogExternalIdInput" required="true"
+                    value="{ 
+                        path: 'productModel>/externalId',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+                <Label id="idAddProductDialogNameInputLabel" text="{i18n>ProductName}"></Label>
+                <Input id="idAddProductDialogNameInput" required="true"
+                    value="{ 
+                        path: 'productModel>/name',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+                <Label id="idAddProductDialogLinkInputLabel" text="{i18n>ProductLink}"></Label>
+                <Input id="idAddProductDialogLinkInput" required="false"
+                    value="{ 
+                        path: 'productModel>/link',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+            </form:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="idAddProductDialogAcceptButton" text="{i18n>ConfirmButton}" press=".onAddProductConfirm"></Button>
+        </beginButton>
+        <endButton> 
+            <Button id="idAddProductDialogCancelButton" text="{i18n>CancelButton}" press="closeDialog('AddProductDialog')"></Button>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
