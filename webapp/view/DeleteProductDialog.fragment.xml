@@ -1,5 +1,5 @@
 <core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="DeleteProductDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
-    <Dialog id="idDeleteProductDialog" title="{i18n>DeleteProduct}">
+    <Dialog id="idDeleteProductDialog" title="{i18n>DeleteProduct}" beforeOpen="onDeleteProductBeforeOpen">
         <content>
             <form:SimpleForm id="idDeleteProductDialogForm">
                 <Text id="idDeleteProductDialogText" text="{i18n>BeforeDeleteProductText}"></Text>

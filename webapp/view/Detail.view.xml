@@ -6,6 +6,7 @@
                     <m:Title id="idDetailObjectPageDynamicHeaderTitle" text="{products>productName}"></m:Title>
                 </uxap:heading>
                 <uxap:actions>
+                    <m:Button id="idDetailObjectPageActionsEditProduct" text="{i18n>EditProductButton}" press=".showDialog('EditProductDialog')"></m:Button>
                     <m:Button id="idDetailObjectPageActionsDeleteProduct" text="{i18n>DeleteProductButton}" press=".showDialog('DeleteProductDialog')"></m:Button>
                     <m:Button id="idDetailObjectPageActionsClosePage" icon="sap-icon://decline" press=".onNavBack"></m:Button>
                 </uxap:actions>
@@ -19,7 +20,7 @@
                 <m:Label id="idDetailHeaderProductNameLabel" text="{i18n>ProductName}"></m:Label>
                 <m:Text id="idDetailHeaderProductNameText" text="{products>productName}"></m:Text>
                 <m:Label id="idDetailHeaderProductLinkLabel" text="{i18n>ProductLink}"></m:Label>
-                <m:Text id="idDetailHeaderProductLinkText" text="{products>productLink}"></m:Text>
+                <m:Link id="idDetailHeaderProductLinkText" href="{products>productLink}" text="{products>productLink}"></m:Link>
             </form:SimpleForm>
         </uxap:headerContent>
         <uxap:sections>
@@ -28,6 +29,7 @@
                     <uxap:ObjectPageSubSection id="idDetailObjectPageSubsectionVersions" title="{i18n>VersionsTitle}">
                         <uxap:actions>
                             <m:Button id="idDetailObjectPageSubsectionActionAddVersion" text="{i18n>AddVersionButton}" press="showDialog('AddVersionDialog')" enabled="true"></m:Button>
+                            <m:ToolbarSeparator id="idVersionSeparator"></m:ToolbarSeparator>
                             <m:Button id="idDetailObjectPageSubsectionActionEditVersion" text="{i18n>EditVersionButton}" press="showDialog('EditVersionDialog')" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
                             <m:Button id="idDetailObjectPageSubsectionActionPublishVersion" text="{i18n>PublishVersionButton}" press="onPublishVersionPress" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
                             <m:Button id="idDetailObjectPageSubsectionActionReturnVersion" text="{i18n>DeprecateVersionButton}" press="onReturnVersionPress" enabled="{path:'products>status', formatter:'.formatter.checkVersionReleasedStatus'}"></m:Button>
@@ -37,9 +39,6 @@
                             updateFinished="onUpdateFinished"
                             items="{path:'products>versions', sorter:{path: 'version', descending:true}}">
                             <m:columns>
-                                <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnId">
-                                    <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnIdText" text="{i18n>VersionId}"></m:Text>
-                                </m:Column>
                                 <m:Column id="idDetailObjectPageSubsectionVersionsTableColumnVersion">
                                     <m:Text id="idDetailObjectPageSubsectionVersionsTableColumnVersionText" text="{i18n>VersionExternalId}"></m:Text>
                                 </m:Column>
@@ -53,7 +52,6 @@
                             <m:items>
                                 <m:ColumnListItem id="idDetailObjectPageSubsectionVersionsTableColumnListItem" type="Active" press=".onVersionPress">
                                     <m:cells>
-                                        <m:Text id="idDetailObjectPageSubsectionVersionsTableIdText" text="{products>id}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionsTableVersionText" text="{products>version}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionsTableDescriptionText" text="{products>description}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionsTableStatusText" text="{path:'products>status', formatter:'.formatter.checkStatus'}"></m:Text>
@@ -66,14 +64,13 @@
                     <uxap:ObjectPageSubSection id="idDetailObjectPageSubsectionVersionArtifacts" title="{i18n>ArtifactsTitle}">
                         <uxap:actions>
                             <m:Button id="idDetailObjectPageSubsectionActionAddArtifact" text="{i18n>AddArtifactButton}" press="showDialog('AddArtifactDialog')"></m:Button>
-                            <m:Button id="idDetailObjectPageSubsectionActionDeleteArtifact" text="Artefakt löschen" press="onDeleteArtifactPress"></m:Button>
+                            <m:ToolbarSeparator id="idArtifactSeparator"></m:ToolbarSeparator>
+                            <m:Button id="idDetailObjectPageSubsectionActionEditArtifact" text="{i18n>EditArtifactButton}" press="showDialog('EditArtifactDialog')" enabled="{artifactSelectedModel>/artifactSelected}"></m:Button>
+                            <m:Button id="idDetailObjectPageSubsectionActionDeleteArtifact" text="{i18n>DeleteArtifactButton}" press="onDeleteArtifactPress" enabled="{artifactSelectedModel>/artifactSelected}"></m:Button>
                         </uxap:actions>
                         <m:Table id="idDetailObjectPageSubsectionVersionArtifactsTable"
                             items="{products>artifacts}">
                             <m:columns>
-                                <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnId">
-                                    <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnIdText" text="{i18n>ArtifactId}"></m:Text>
-                                </m:Column>
                                 <m:Column id="idDetailObjectPageSubsectionVersionArtifactsTableColumnDeploymentCategory">
                                     <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableColumnDeploymentCategoryText" text="{i18n>ArtifactDeploymentCategory}"></m:Text>
                                 </m:Column>
@@ -93,7 +90,6 @@
                             <m:items>
                                 <m:ColumnListItem id="idDetailObjectPageSubsectionVersionArtifactsTableColumnListItem" type="Active" press="onArtifactPress">
                                     <m:cells>
-                                        <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableIdText" text="{products>id}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableDeploymentCategoryText" text="{path:'products>deploymentCategory', formatter:'.formatter.checkDeploymentCategory'}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableAssignmentTypeText" text="{path:'products>assignmentType', formatter:'.formatter.checkAssignmentType'}"></m:Text>
                                         <m:Text id="idDetailObjectPageSubsectionVersionArtifactsTableTransportTypeText" text="{path:'products>transportType', formatter:'.formatter.checkTransportType'}"></m:Text>

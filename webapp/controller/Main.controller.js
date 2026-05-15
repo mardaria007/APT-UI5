@@ -30,7 +30,7 @@ sap.ui.define([
             return maxVersion;
         },
 
-        onAddProductConfirm() {
+        async onAddProductConfirm() {
             // get the Popup data
             let productId = this._oProductModel.getObject("/").externalId;
             let name = this._oProductModel.getObject("/").name;
@@ -42,7 +42,7 @@ sap.ui.define([
             };
 
             // send POST Request to the JAVA API
-            fetch("http://localhost:8080/products", {
+            await fetch(this.getDestinationAPI() + "/products", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,6 +52,8 @@ sap.ui.define([
 
             // close Dialog
             this.closeDialog("AddProductDialog");
+
+            this.refreshBindings();
         },
 
         onAddProductDialogBeforeOpen(sDialogName) {

@@ -16,12 +16,12 @@ sap.ui.define([
             // attach method to bind data to view
             this.oRouter.getRoute("RouteDetail").attachPatternMatched(this._onObjectMatched, this);
 
+            this.confirmPressed = false;
+
             // create new JSONModel for the Version Creation Popup
             this._oVersionModel = new JSONModel(); 
             this._oVersionModel.setData({"version": null, "description": null});
             this.getView().setModel(this._oVersionModel, "versionModel");
-
-            this.sDestinationAPI = "http://localhost:8080";
 
             // create new JSONModel for the Artifact Creation Popup
             this._oArtifactModel = new JSONModel(); 
@@ -33,9 +33,18 @@ sap.ui.define([
                 "transportId": null
             });
             this.getView().setModel(this._oArtifactModel, "artifactModel");
+
+            this._oArtifactSelected = new JSONModel();
+            this._oArtifactSelected.setData({"artifactSelected": false});
+            this.getView().setModel(this._oArtifactSelected, "artifactSelectedModel");
+
+            this._oProductModel = new JSONModel(); 
+            this._oProductModel.setData({"externalId": null, "name": null, "link": null});
+            this.getView().setModel(this._oProductModel, "editProductModel");
         },
         
         async _onObjectMatched(oEvent) {
+            this._oArtifactSelected.setData({"artifactSelected": false});
             // get the selected Product ID
             this.pId = oEvent.getParameter("arguments").product;
             this.recentVersion = oEvent.getParameter("arguments").rVersion;
@@ -53,6 +62,8 @@ sap.ui.define([
                         path: "/" + i,
                         model: "products"
                     });
+
+                    this.oCurrentSelectedProduct = cData[i];
                     
                     if (this.recentVersion == " ") {
                         this.getView().byId("idDetailObjectPageSubsectionVersionArtifacts").bindElement({
@@ -63,19 +74,6 @@ sap.ui.define([
                     return;
                 }
             };
-
-        },
-
-        async refreshBindings() {
-            let data = await new Promise((resolve, reject) => {
-                resolve(fetch(this.sDestinationAPI + "/products",{
-                    method: "GET"
-                }));
-            });
-
-            let json = await data.json();
-            this.getView().getModel("products").setData(json);
-            this.getView().getModel("products").refresh();
 
         },
 
@@ -167,6 +165,8 @@ sap.ui.define([
             // get the selected Artifact for later usage
             this.oCurrentSelectedArtifact = oEvent.getSource().getBindingContext("products");
 
+            this._oArtifactSelected.setData({"artifactSelected": true});
+
             // Highlight the current selected Artifact
             this.oArtifactTableItems = this.byId("idDetailObjectPageSubsectionVersionArtifactsTable").getItems();
             this.oArtifactTableItems.forEach((oItem) => {
@@ -175,31 +175,87 @@ sap.ui.define([
         },
 
         async onDeleteProductConfirm() {
-            // send DELETE Request to the Java API
-            await fetch(this.sDestinationAPI + "/products/" + this.pId, {
-                method: "DELETE"
-            });
+            if (!this.confirmPressed) {
+                // send DELETE Request to the Java API
+                await fetch(this.getDestinationAPI() + "/products/" + this.pId, {
+                    method: "DELETE"
+                });
 
-            this.refreshBindings();
+                this.confirmPressed = true;
+    
+                this.refreshBindings();
+    
+                // close Dialog
+                this.closeDialog("DeleteProductDialog");
+                window.history.go(-1);
+            } else {
+                // close Dialog
+                this.closeDialog("DeleteProductDialog");
+            }
+        },
 
-            // close Dialog
-            this.closeDialog("DeleteProductDialog");
-            window.history.go(-1);
+        onDeleteProductBeforeOpen() {
+            this.confirmPressed = false;
+        },
+
+        onEditProductDialogBeforeOpen(sDialogName) {
+            // set Popup values
+            this.confirmPressed = false;
+            this._oProductModel.setData({"externalId": this.oCurrentSelectedProduct.productExternalId, "name": this.oCurrentSelectedProduct.productName, "link": this.oCurrentSelectedProduct.productLink});
+            this["_" + sDialogName].setModel(this._oProductModel, "editProductModel");
+        },
+
+        async onEditProductConfirm() {
+            // get the Popup data
+            if (!this.confirmPressed) {
+                let productId = this._oProductModel.getObject("/").externalId;
+                let name = this._oProductModel.getObject("/").name;
+                let link = this._oProductModel.getObject("/").link;
+                let body = {
+                    productExternalId: productId,
+                    productName: name,
+                    productLink: link
+                };
+
+                this.confirmPressed = true;
+    
+                // send POST Request to the JAVA API
+                await fetch(this.getDestinationAPI() + "/products/" + this.pId, {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+    
+                // close Dialog
+                this.closeDialog("EditProductDialog");
+    
+                this.refreshBindings();
+            } else {
+                this.closeDialog("EditProductDialog");
+            }
         },
 
         onAddVersionDialogBeforeOpen(sDialogName) {
             // reset Popup values
+            this.confirmPressed = false;
             this._oVersionModel.setData({"version": null, "description": null});
             this["_" + sDialogName].setModel(this._oVersionModel, "versionModel");
         },
 
         onEditVersionDialogBeforeOpen(sDialogName) {
             // set Popup Values
-            this._oVersionModel.setData({"version": this.oCurrentSelectedVersion.getProperty("version"), "description": this.oCurrentSelectedVersion.getProperty("description")});
+            this.confirmPressed = false;
+            this._oVersionModel.setData({
+                "version": this.oCurrentSelectedVersion.getProperty("version"), 
+                "description": this.oCurrentSelectedVersion.getProperty("description")
+            });
             this["_" + sDialogName].setModel(this._oVersionModel, "versionModel");
         },
 
         onAddArtifactDialogBeforeOpen(sDialogName) {
+            this.confirmPressed = false;
             this._oArtifactModel.setData({
                 "deploymentCategory": null, 
                 "assignmentType": null, 
@@ -210,120 +266,132 @@ sap.ui.define([
             this["_" + sDialogName].setModel(this._oArtifactModel, "artifactModel");
         },
 
-        async onAddVersionConfirm() {
-            // get the Popup data
-            let productId = this.pId;
-            let version = this._oVersionModel.getObject("/").version;
-            let description = this._oVersionModel.getObject("/").description;
-            let body = {
-                product: productId,
-                version: version,
-                description: description
-            };
-
-            // send POST Request to the JAVA API
-            await fetch(this.sDestinationAPI + "/versions", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
+        onEditArtifactDialogBeforeOpen(sDialogName) {
+            this.confirmPressed = false;
+            this._oArtifactModel.setData({
+                "deploymentCategory": this.oCurrentSelectedArtifact.getProperty("deploymentCategory"), 
+                "assignmentType": this.oCurrentSelectedArtifact.getProperty("assignmentType"), 
+                "description": this.oCurrentSelectedArtifact.getProperty("description"), 
+                "transportType": this.oCurrentSelectedArtifact.getProperty("transportType"), 
+                "transportId": this.oCurrentSelectedArtifact.getProperty("transportId")
             });
+            this["_" + sDialogName].setModel(this._oArtifactModel, "artifactModel");
+        },
 
-            // close Dialog
-            this.closeDialog("AddVersionDialog");
-            this.refreshBindings();
+        async onAddVersionConfirm() {
+            if (!this.confirmPressed) {
+                // get the Popup data
+                let productId = this.pId;
+                let version = this._oVersionModel.getObject("/").version;
+                let description = this._oVersionModel.getObject("/").description;
+                let body = {
+                    product: productId,
+                    version: version,
+                    description: description
+                };
+
+                this.confirmPressed = true;
+    
+                // send POST Request to the JAVA API
+                await fetch(this.getDestinationAPI() + "/versions", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+    
+                // close Dialog
+                this.closeDialog("AddVersionDialog");
+                this.refreshBindings();
+            } else {
+                // close Dialog
+                this.closeDialog("AddVersionDialog");
+            }
         },
 
         async onEditVersionConfirm() {
-            // get the Popup data
-            let productId = this.pId;
-            let version = this._oVersionModel.getObject("/").version;
-            let description = this._oVersionModel.getObject("/").description;
-            let status = this.oCurrentSelectedVersion.getProperty("status");
-
-            // get Artifacts
-            let artifacts = this.oCurrentSelectedVersion.getProperty("artifacts");
-            let artifactsIds = [];
-
-            // get only the ids of the Artifacts
-            for (let i = 0; i < artifacts.length; i++) {
-                artifactsIds.push(artifacts[i].id);
+            if (!this.confirmPressed) {
+                // get the Popup data
+                let productId = this.pId;
+                let version = this._oVersionModel.getObject("/").version;
+                let description = this._oVersionModel.getObject("/").description;
+                let status = this.oCurrentSelectedVersion.getProperty("status");
+    
+                // get Artifacts
+                let artifacts = this.oCurrentSelectedVersion.getProperty("artifacts");
+                let artifactsIds = [];
+    
+                // get only the ids of the Artifacts
+                for (let i = 0; i < artifacts.length; i++) {
+                    artifactsIds.push(artifacts[i].id);
+                }
+                let body = {
+                    product: productId,
+                    version: version,
+                    description: description,
+                    status: status,
+                    artifacts: artifactsIds
+                };
+    
+                // send POST Request to the JAVA API
+                await fetch(this.getDestinationAPI() + "/versions/" + this.oCurrentSelectedVersion.getProperty("id"), {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+    
+                // close Dialog
+                this.closeDialog("EditVersionDialog");
+                this.refreshBindings();
+            } else {
+                // close Dialog
+                this.closeDialog("EditVersionDialog");
             }
-            let body = {
-                product: productId,
-                version: version,
-                description: description,
-                status: status,
-                artifacts: artifactsIds
-            };
-
-            // send POST Request to the JAVA API
-            await fetch(this.sDestinationAPI + "/versions/" + this.oCurrentSelectedVersion.getProperty("id"), {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
-            });
-
-            // close Dialog
-            this.closeDialog("EditVersionDialog");
-            this.refreshBindings();
         },
 
         async onAddArtifactConfirm() {
-            // get the Popup data
-            let versionId = this.vId;
-            let deploymentCategory = this._oArtifactModel.getObject("/").deploymentCategory;
-            let assignmentType = this._oArtifactModel.getObject("/").assignmentType;
-            let transportType = this._oArtifactModel.getObject("/").transportType;
-            let transportId = this._oArtifactModel.getObject("/").transportId;
-            let description = this._oArtifactModel.getObject("/").description;
-
-            let body = {
-                version: versionId,
-                description: description,
-                deploymentCategory: deploymentCategory,
-                assignmentType: assignmentType,
-                transportType: transportType,
-                externalId: transportId
-            };
-
-            // send POST Request to the JAVA API
-            await fetch(this.sDestinationAPI+ "/artifacts", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
-            });
-
-            // close Dialog
-            this.closeDialog("AddArtifactDialog");
-            this.refreshBindings();
+            if (!this.confirmPressed) {
+                // get the Popup data
+                let versionId = this.vId;
+                let deploymentCategory = this._oArtifactModel.getObject("/").deploymentCategory;
+                let assignmentType = this._oArtifactModel.getObject("/").assignmentType;
+                let transportType = this._oArtifactModel.getObject("/").transportType;
+                let transportId = this._oArtifactModel.getObject("/").transportId;
+                let description = this._oArtifactModel.getObject("/").description;
+    
+                let body = {
+                    version: versionId,
+                    description: description,
+                    deploymentCategory: deploymentCategory,
+                    assignmentType: assignmentType,
+                    transportType: transportType,
+                    externalId: transportId
+                };
+    
+                // send POST Request to the JAVA API
+                await fetch(this.getDestinationAPI()+ "/artifacts", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+    
+                // close Dialog
+                this.closeDialog("AddArtifactDialog");
+                this.refreshBindings();
+            } else {
+                // close Dialog
+                this.closeDialog("AddArtifactDialog");
+            }
         },
 
         onPublishVersionPress() {
-            // // get the current Version Data 
-            // let productId = this.pId; 
-            // let versionId = this.vId;
-            // let artifacts = this.oCurrentSelectedVersion.getProperty("artifacts");
-            // let artifactsIds = [];
-
-            // // get only the ids of the Artifacts
-            // for (let i = 0; i < artifacts.length; i++) {
-            //     artifactsIds.push(artifacts[i].id);
-            // }
-
-            // let body = {
-            //     product: productId,
-            //     description: this.oCurrentSelectedVersion.getProperty("description"),
-            //     version: this.oCurrentSelectedVersion.getProperty("version"),
-            //     status: "RELEASED",
-            //     artifacts: artifactsIds
-            // }
-
+            this.confirmPressed = false;
+            let versionId = this.vId;
             let sText = this.getText("BeforePublishVersionText");
             let sDialogTitle = this.getText("PublishVersion");
 
@@ -336,18 +404,12 @@ sap.ui.define([
                     title: sDialogTitle,
                     actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
                     onClose: async function (oAction) {
-                        if (oAction == MessageBox.Action.OK) {
-                            // await fetch("http://localhost:8080/versions/" + versionId, {
-                            //     method: "PUT",
-                            //     headers: {
-                            //         'Content-Type': 'application/json',
-                            //     },
-                            //     body: JSON.stringify(body)
-                            // });
-
-                            await fetch(that.sDestinationAPI + "/versions/" + versionId + "/publish",{
+                        if (oAction == MessageBox.Action.OK && !that.confirmPressed) {
+                            await fetch(that.getDestinationAPI() + "/versions/" + versionId + "/publish",{
                                 method:"GET"
                             });
+
+                            that.confirmPressed = true;
 
                             that.refreshBindings();
                         }
@@ -357,25 +419,8 @@ sap.ui.define([
         },
 
         onReturnVersionPress() {
-            // // get the current Version Data 
-            // let productId = this.pId; 
-            // let versionId = this.vId;
-            // let artifacts = this.oCurrentSelectedVersion.getProperty("artifacts");
-            // let artifactsIds = [];
-
-            // // get only the ids of the Artifacts
-            // for (let i = 0; i < artifacts.length; i++) {
-            //     artifactsIds.push(artifacts[i].id);
-            // }
-
-            // let body = {
-            //     product: productId,
-            //     description: this.oCurrentSelectedVersion.getProperty("description"),
-            //     version: this.oCurrentSelectedVersion.getProperty("version"),
-            //     status: "DEPRECATED",
-            //     artifacts: artifactsIds
-            // }
-
+            this.confirmPressed = false;
+            let versionId = this.vId;
             let sText = this.getText("BeforeDeprecateVersionText");
             let sDialogTitle = this.getText("DeprecateVersion");
 
@@ -388,17 +433,12 @@ sap.ui.define([
                     title: sDialogTitle,
                     actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
                     onClose: async function (oAction) {
-                        if (oAction == MessageBox.Action.OK) {
-                            // await fetch("http://localhost:8080/versions/" + versionId, {
-                            //     method: "PUT",
-                            //     headers: {
-                            //         'Content-Type': 'application/json',
-                            //     },
-                            //     body: JSON.stringify(body)
-                            // });
-                            await fetch(that.sDestinationAPI + "/versions/" + versionId + "/return", {
+                        if (oAction == MessageBox.Action.OK && !that.confirmPressed) {
+                            await fetch(that.getDestinationAPI() + "/versions/" + versionId + "/return", {
                                 method: "GET"
                             });
+
+                            that.confirmPressed = true;
 
                             that.refreshBindings();
                         }
@@ -409,6 +449,7 @@ sap.ui.define([
 
         onDeleteVersionPress() {
             // get the current selected Version ID
+            this.confirmPressed = false;
             let versionId = this.vId;
             let oI18nModel = this._oI18nModel;
 
@@ -423,8 +464,8 @@ sap.ui.define([
                 title: sDialogTitle,
                 actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
                 onClose: async function (oAction) {
-                    if (oAction == MessageBox.Action.OK) {
-                        await fetch(that.sDestinationAPI + "/versions/" + versionId, {
+                    if (oAction == MessageBox.Action.OK && !that.confirmPressed) {
+                        await fetch(that.getDestinationAPI() + "/versions/" + versionId, {
                             method: "DELETE"
                         });
 
@@ -436,6 +477,7 @@ sap.ui.define([
 
         onDeleteArtifactPress() {
             // get the current selected Artifact ID
+            this.confirmPressed = false;
             let artifactId = this.aId;
             let oI18nModel = this._oI18nModel;
 
@@ -449,8 +491,8 @@ sap.ui.define([
                 title: sDialogTitle,
                 actions: [MessageBox.Action.OK, MessageBox.Action.CLOSE],
                 onClose: async function (oAction) {
-                    if (oAction == MessageBox.Action.OK) {
-                        await fetch(that.sDestinationAPI + "/artifacts/" + artifactId, {
+                    if (oAction == MessageBox.Action.OK && !that.confirmPressed) {
+                        await fetch(that.getDestinationAPI() + "/artifacts/" + artifactId, {
                             method: "DELETE"
                         });
 

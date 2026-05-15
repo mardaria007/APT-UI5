@@ -1,0 +1,32 @@
+<core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="EditProductDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="idEditProductDialog" title="{i18n>EditProduct}" beforeOpen=".onEditProductDialogBeforeOpen('EditProductDialog')">
+        <content>
+            <form:SimpleForm id="idEditProductDialogForm">
+                <Label id="idEditProductDialogExternalIdInputLabel" text="{i18n>ProductExternalId}"></Label>
+                <Input id="idEditProductDialogExternalIdInput"
+                    value="{ 
+                        path: 'editProductModel>/externalId',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+                <Label id="idEditProductDialogNameInputLabel" text="{i18n>ProductName}"></Label>
+                <Input id="idEditProductDialogNameInput"
+                    value="{ 
+                        path: 'editProductModel>/name',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+                <Label id="idEditProductDialogLinkInputLabel" text="{i18n>ProductLink}"></Label>
+                <Input id="idEditProductDialogLinkInput"
+                    value="{ 
+                        path: 'editProductModel>/link',
+                        type: 'sap.ui.model.type.String'
+                    }"></Input>
+            </form:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="idEditProductDialogAcceptButton" text="{i18n>ConfirmButton}" press=".onEditProductConfirm"></Button>
+        </beginButton>
+        <endButton> 
+            <Button id="idEditProductDialogCancelButton" text="{i18n>CancelButton}" press="closeDialog('EditProductDialog')"></Button>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

@@ -1,5 +1,5 @@
 <core:FragmentDefinition xmlns:form="sap.ui.layout.form" id="AddProductDialog" xmlns="sap.m" xmlns:core="sap.ui.core">
-    <Dialog id="idAddProductDialog" title="{i18n>AddProduct}" beforeOpen=".onAddProductDialogBeforeOpen('AddVersionDialog')">
+    <Dialog id="idAddProductDialog" title="{i18n>AddProduct}" beforeOpen=".onAddProductDialogBeforeOpen('AddProductDialog')">
         <content>
             <form:SimpleForm id="idAddProductDialogForm">
                 <Label id="idAddProductDialogExternalIdInputLabel" text="{i18n>ProductExternalId}"></Label>

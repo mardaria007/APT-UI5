@@ -5,8 +5,7 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("apt.controller.BaseController", {
-        onInit() {
-        },
+        onInit() {},
 
         showDialog(sDialogName, sInputValue = 0) {
             if (!this["_" + sDialogName]) {
@@ -23,6 +22,23 @@ sap.ui.define([
 
         onNavBack() {
             this.getOwnerComponent().getRouter().navTo("RouteMain");
+        },
+
+        getDestinationAPI() {
+            return "http://localhost:8080";
+        },
+
+        async refreshBindings() {
+            let data = await new Promise((resolve, reject) => {
+                resolve(fetch(this.getDestinationAPI() + "/products",{
+                    method: "GET"
+                }));
+            });
+
+            let json = await data.json();
+            this.getView().getModel("products").setData(json);
+            this.getView().getModel("products").refresh();
+
         },
 
         closeDialog(sDialogName) {
